@@ -42,5 +42,13 @@
     "@deepseek-ai/schemastery": {
       "optional": true
     }
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tianxia--/dsh-llm-local-token.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tianxia--/dsh-llm-local-token/issues"
+  },
+  "homepage": "https://github.com/tianxia--/dsh-llm-local-token#readme"
 }

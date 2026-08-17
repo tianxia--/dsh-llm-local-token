@@ -23,12 +23,15 @@ expiry, and hands it to the pi-ai engine that DSH already ships.
 ## Install
 
 ```bash
-# 1. add the package to the profile you boot (forwards to pnpm)
-dsh plugin --profile web add dsh-llm-local-token
+# from git (no npm publish needed)
+dsh plugin --profile web add https://github.com/tianxia--/dsh-llm-local-token.git
 
-# 2. enable it: append a loader entry to the profile's patch layer
-#    ~/.dsh/profiles/web/cordis.patch.yml
+# or, once published to npm
+dsh plugin --profile web add dsh-llm-local-token
 ```
+
+Enable it by appending a loader entry to the profile's patch layer
+(`~/.dsh/profiles/web/cordis.patch.yml`):
 
 ```yaml
 - insert:

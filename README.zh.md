@@ -20,12 +20,14 @@ API key。这个插件在每次请求时从 CLI 维护的文件里解析 token�
 ## 安装
 
 ```bash
-# 1. 装进你要启动的 profile（内部转发给 pnpm）
-dsh plugin --profile web add dsh-llm-local-token
+# 直接从 git 安装（无需发布到 npm）
+dsh plugin --profile web add https://github.com/tianxia--/dsh-llm-local-token.git
 
-# 2. 启用：在 profile 的补丁层追加一条 loader entry
-#    ~/.dsh/profiles/web/cordis.patch.yml
+# 或发布到 npm 后
+dsh plugin --profile web add dsh-llm-local-token
 ```
+
+在 profile 的补丁层（`~/.dsh/profiles/web/cordis.patch.yml`）追加一条 loader entry 启用：
 
 ```yaml
 - insert:
