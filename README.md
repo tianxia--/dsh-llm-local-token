@@ -60,6 +60,22 @@ All keys are optional; the defaults match a stock CLI install.
 | `claudeKeychainService` | `Claude Code-credentials` | macOS Keychain service holding the Claude OAuth payload |
 | `requireClaude` | `false` | Fail activation when no Claude credential is found, instead of skipping the route |
 
+## Subscription usage badge
+
+Both providers return their quota state in response headers, so the plugin reads it for free —
+no polling, no extra endpoint hits. A badge appears in the composer bar next to the context
+ring; click it for the breakdown.
+
+| Provider | Headers read | Shown |
+| --- | --- | --- |
+| `openai-codex` | `x-codex-primary-*`, `x-codex-secondary-*`, `x-codex-plan-type`, `x-codex-credits-balance` | plan, used % per window, reset countdown, credit balance |
+| `anthropic` | `anthropic-ratelimit-unified-{5h,7d}-{utilization,reset,status}` | used % for the 5-hour and 7-day windows, reset countdown |
+
+The badge is green under 60%, amber under 85%, red above. Usage is whatever the **last real
+request** reported, so a freshly started host shows "no data yet" until you send one message.
+The browser half polls `GET /llm-local-token/usage` every 15s; that route only reads the
+in-memory snapshot.
+
 ## Requirements
 
 - Node.js **22.13+** (DSH's own floor; `--use-system-ca` needs it too)

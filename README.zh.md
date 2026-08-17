@@ -56,6 +56,19 @@ agent-default-model:
 | `claudeKeychainService` | `Claude Code-credentials` | 存放 Claude OAuth 数据的 Keychain 服务名 |
 | `requireClaude` | `false` | 为 `true` 时找不到 Claude 凭据就启动失败（而不是跳过） |
 
+## 订阅用量徽标
+
+两家 provider 都在响应头里返回额度状态，插件顺带读取即可 —— 不轮询、不额外调接口。输入框工具条上
+（上下文圆环旁边）会出现一个徽标，点开看明细。
+
+| Provider | 读取的响应头 | 展示内容 |
+| --- | --- | --- |
+| `openai-codex` | `x-codex-primary-*`、`x-codex-secondary-*`、`x-codex-plan-type`、`x-codex-credits-balance` | 套餐、各窗口已用百分比、重置倒计时、点数余额 |
+| `anthropic` | `anthropic-ratelimit-unified-{5h,7d}-{utilization,reset,status}` | 5 小时与 7 天窗口的已用百分比、重置倒计时 |
+
+低于 60% 显示绿色，低于 85% 琥珀色，更高显示红色。数值来自**最近一次真实请求**，所以刚启动时会显示
+「暂无数据」，发一条消息即可。浏览器端每 15 秒轮询 `GET /llm-local-token/usage`，该路由只读内存快照。
+
 ## 环境要求
 
 - Node.js **22.13+**（DSH 本身的底线，`--use-system-ca` 也需要）
