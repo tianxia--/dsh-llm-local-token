@@ -23,15 +23,24 @@ expiry, and hands it to the pi-ai engine that DSH already ships.
 ## Install
 
 ```bash
-# from git (no npm publish needed)
-dsh plugin --profile web add https://github.com/tianxia--/dsh-llm-local-token.git
-
-# or, once published to npm
 dsh plugin --profile web add dsh-llm-local-token
+
+# or straight from git
+dsh plugin --profile web add https://github.com/tianxia--/dsh-llm-local-token.git
 ```
 
-Enable it by appending a loader entry to the profile's patch layer
-(`~/.dsh/profiles/web/cordis.patch.yml`):
+Then restart `dsh` — that is the whole install. The package declares a profile
+bundle (`dsh.bundle.patch` → [`cordis.patch.yml`](cordis.patch.yml)), so DSH
+inserts the loader row for you; you do **not** have to hand-edit the profile's
+own `cordis.patch.yml`.
+
+<details>
+<summary>Enabling it by hand instead</summary>
+
+If you vendored the plugin, or you want to pin its `config` in your own patch
+layer, append the row yourself to `~/.dsh/profiles/web/cordis.patch.yml`. Your
+profile's layer is applied after every bundle layer, so restating the id here
+also lets you override the bundle's defaults:
 
 ```yaml
 - insert:
@@ -39,7 +48,9 @@ Enable it by appending a loader entry to the profile's patch layer
       name: dsh-llm-local-token
 ```
 
-Then restart `dsh`. To make it the default model:
+</details>
+
+To make it the default model:
 
 ```yaml
 # ~/.dsh/settings.yaml

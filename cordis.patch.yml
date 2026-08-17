@@ -1,0 +1,16 @@
+# The dsh-llm-local-token bundle patch.
+#
+# DSH resolves this file through the `dsh.bundle.patch` manifest field in
+# package.json, never through code. Declaring it makes this package a profile
+# bundle, so `dsh plugin add dsh-llm-local-token` is enough to enable the
+# plugin: the row below is inserted for you and no hand-editing of the
+# profile's own cordis.patch.yml is required.
+#
+# The row carries no `config`, so every option keeps the default documented in
+# the README. A patch replaces a row's whole `config` rather than merging into
+# it, so your profile's cordis.patch.yml can restate this id to configure the
+# plugin, and that later layer wins.
+
+- insert:
+    - id: llm-local-token
+      name: dsh-llm-local-token
