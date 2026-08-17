@@ -11,6 +11,13 @@ Codex CLI 或 Claude Code，这些订阅就会变成 DSH 里可选的模型路�
 
 插件加载后模型直接出现在模型选择器里。缺少凭据的路由会被跳过，不会导致启动失败。
 
+<table>
+<tr>
+<td align="center" width="50%"><sub>两份订阅都成了模型选择器里的路由</sub><br><img src="https://raw.githubusercontent.com/tianxia--/dsh-llm-local-token/main/docs/model-routes.png" alt="DSH 模型选择器中的 OpenAI Codex (local token) 与 Claude (local token) 分组" width="330"></td>
+<td align="center" width="50%"><sub>订阅用量，来自 provider 的 rate-limit 响应头</sub><br><img src="https://raw.githubusercontent.com/tianxia--/dsh-llm-local-token/main/docs/subscription-usage.png" alt="订阅用量弹层，显示 Claude 与 OpenAI Codex 的配额窗口" width="400"></td>
+</tr>
+</table>
+
 ## 为什么需要它
 
 DSH 通过凭据服务解析 provider 的 key，而个人版 Codex / Claude 订阅是 OAuth-only 的，根本没有

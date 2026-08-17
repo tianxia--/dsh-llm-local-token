@@ -13,6 +13,13 @@ usable model routes inside DSH.
 Both routes appear in the model picker as soon as the plugin loads. A route whose credential is
 missing is skipped instead of failing the boot.
 
+<table>
+<tr>
+<td align="center" width="50%"><sub>Both subscriptions as routes in the model picker</sub><br><img src="https://raw.githubusercontent.com/tianxia--/dsh-llm-local-token/main/docs/model-routes.png" alt="The DSH model picker listing OpenAI Codex (local token) and Claude (local token) groups" width="330"></td>
+<td align="center" width="50%"><sub>Subscription usage, read from provider rate-limit headers</sub><br><img src="https://raw.githubusercontent.com/tianxia--/dsh-llm-local-token/main/docs/subscription-usage.png" alt="Subscription usage popover showing Claude and OpenAI Codex quota windows" width="400"></td>
+</tr>
+</table>
+
 ## Why it exists
 
 DSH resolves a provider's key through its credential seam, which expects an API key. Personal
