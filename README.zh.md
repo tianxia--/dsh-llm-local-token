@@ -20,14 +20,22 @@ API key。这个插件在每次请求时从 CLI 维护的文件里解析 token�
 ## 安装
 
 ```bash
-# 直接从 git 安装（无需发布到 npm）
-dsh plugin --profile web add https://github.com/tianxia--/dsh-llm-local-token.git
-
-# 或发布到 npm 后
 dsh plugin --profile web add dsh-llm-local-token
+
+# 或直接从 git 安装
+dsh plugin --profile web add https://github.com/tianxia--/dsh-llm-local-token.git
 ```
 
-在 profile 的补丁层（`~/.dsh/profiles/web/cordis.patch.yml`）追加一条 loader entry 启用：
+然后重启 `dsh`——安装就到这里。本包声明了 profile bundle（`dsh.bundle.patch` →
+[`cordis.patch.yml`](cordis.patch.yml)），DSH 会替你插入那条 loader 行，**不需要**
+手工编辑 profile 自己的 `cordis.patch.yml`。
+
+<details>
+<summary>改为手工启用</summary>
+
+如果你是把插件源码复制进来用，或者想在自己的补丁层里固定它的 `config`，那就自己往
+`~/.dsh/profiles/web/cordis.patch.yml` 追加这一行。profile 自己的补丁层在所有 bundle
+层之后生效，所以在这里重述同一个 id 也可以覆盖 bundle 的默认值：
 
 ```yaml
 - insert:
@@ -35,7 +43,9 @@ dsh plugin --profile web add dsh-llm-local-token
       name: dsh-llm-local-token
 ```
 
-然后重启 `dsh`。想设为默认模型：
+</details>
+
+想设为默认模型：
 
 ```yaml
 # ~/.dsh/settings.yaml

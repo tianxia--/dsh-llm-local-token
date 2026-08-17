@@ -1,6 +1,6 @@
 {
   "name": "dsh-llm-local-token",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "DeepSeek Harness plugin: serve LLM calls with the OAuth tokens your local Codex CLI and Claude Code already hold, instead of a separately configured API key.",
   "keywords": [
     "deepseek-harness",
@@ -18,10 +18,12 @@
   "exports": {
     ".": "./lib/index.js",
     "./package.json": "./package.json",
-    "./client": "./lib/client.js"
+    "./client": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml"
   },
   "files": [
     "lib/",
+    "cordis.patch.yml",
     "README.md",
     "README.zh.md",
     "LICENSE"
@@ -53,6 +55,9 @@
   },
   "homepage": "https://github.com/tianxia--/dsh-llm-local-token#readme",
   "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
     "client": {
       "inject": [
         "slots",
