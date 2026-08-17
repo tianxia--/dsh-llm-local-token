@@ -55,6 +55,7 @@ agent-default-model:
 | `claudeAuthPath` | `~/.claude/.credentials.json` | 旧版 Claude Code 凭据文件 |
 | `claudeKeychainService` | `Claude Code-credentials` | 存放 Claude OAuth 数据的 Keychain 服务名 |
 | `requireClaude` | `false` | 为 `true` 时找不到 Claude 凭据就启动失败（而不是跳过） |
+| `codexTransport` | `"sse"` | Codex 路由的流式通道：`sse` / `websocket` / `websocket-cached` / `auto`。**额度徽标依赖 `sse`**：pi-ai 默认的 `auto` 会走 WebSocket，而 `x-codex-*` 额度响应头只存在于 SSE 响应上，走 WS 时徽标永远是「暂无数据」。想要 WebSocket 就设成 `auto`，代价是没有 Codex 额度数据。 |
 
 ## 订阅用量徽标
 
@@ -68,6 +69,11 @@ agent-default-model:
 
 低于 60% 显示绿色，低于 85% 琥珀色，更高显示红色。数值来自**最近一次真实请求**，所以刚启动时会显示
 「暂无数据」，发一条消息即可。浏览器端每 15 秒轮询 `GET /llm-local-token/usage`，该路由只读内存快照。
+
+徽标**只显示当前选中模型所属 provider** 的用量：选 Codex 就是 Codex 的窗口，切到 Claude 就换成
+Claude 的，不会把两家的数字混在一起。选中的模型由别的 adapter 提供（普通 API key、其他插件）时徽标
+直接隐藏 —— 那份额度不属于本插件。展开的弹层仍列出所有路由，当前那条排在最前并标注「当前」，其余淡显。
+当前选中项来自 `ctx.modelDirectories`；组合里没有该服务时（非 Web）退回旧的「全部路由合并」显示。
 
 ## 环境要求
 

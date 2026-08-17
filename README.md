@@ -59,6 +59,7 @@ All keys are optional; the defaults match a stock CLI install.
 | `claudeAuthPath` | `~/.claude/.credentials.json` | Legacy Claude Code credential file |
 | `claudeKeychainService` | `Claude Code-credentials` | macOS Keychain service holding the Claude OAuth payload |
 | `requireClaude` | `false` | Fail activation when no Claude credential is found, instead of skipping the route |
+| `codexTransport` | `"sse"` | Streaming transport for the Codex route: `sse` / `websocket` / `websocket-cached` / `auto`. **The quota badge depends on `sse`**: pi-ai's default `auto` streams over WebSocket, and the `x-codex-*` quota headers exist only on the SSE response, so the badge stays empty under WS. Set `auto` to prefer WebSocket and accept no Codex quota data. |
 
 ## Subscription usage badge
 
@@ -75,6 +76,14 @@ The badge is green under 60%, amber under 85%, red above. Usage is whatever the 
 request** reported, so a freshly started host shows "no data yet" until you send one message.
 The browser half polls `GET /llm-local-token/usage` every 15s; that route only reads the
 in-memory snapshot.
+
+The badge shows **only the provider serving the currently selected model**: pick Codex and you see
+Codex's windows, switch to Claude and it swaps — the two are never mixed into one number. When the
+selected model belongs to another adapter (a plain API key, another plugin) the badge hides itself,
+because that quota is not this plugin's to report. The popover still lists every route, with the
+active one first and marked "current" and the rest dimmed. The selection comes from
+`ctx.modelDirectories`; a composition without that service (non-Web) falls back to the previous
+union-of-all-routes view.
 
 ## Requirements
 
