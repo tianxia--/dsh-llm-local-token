@@ -1,3 +1,8 @@
 node_modules/
 *.log
 .DS_Store
+
+# Editor tooling scratch space, and local working notes that are not part of the
+# plugin (npm ships only what package.json "files" lists, so these never
+# published — this just keeps them out of git too).
+.dsh_better_edit/
