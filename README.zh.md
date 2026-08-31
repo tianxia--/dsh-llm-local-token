@@ -73,19 +73,27 @@ agent-default-model:
 | `claudeKeychainService` | `Claude Code-credentials` | 存放 Claude OAuth 数据的 Keychain 服务名 |
 | `requireClaude` | `false` | 为 `true` 时找不到 Claude 凭据就启动失败（而不是跳过） |
 | `codexTransport` | `"sse"` | Codex 路由的流式通道：`sse` / `websocket` / `websocket-cached` / `auto`。**额度徽标依赖 `sse`**：pi-ai 默认的 `auto` 会走 WebSocket，而 `x-codex-*` 额度响应头只存在于 SSE 响应上，走 WS 时徽标永远是「暂无数据」。想要 WebSocket 就设成 `auto`，代价是没有 Codex 额度数据。 |
+| `usageProbe` | `true` | 是否定时刷新额度（每个 provider 一个最小裸请求）。设 `false` 则完全被动，只读真实请求。 |
+| `usageProbeIntervalHours` | `4` | 探测间隔小时数。对齐 5 小时窗口（每天重置约五次）；设 `24` 就是每天一次。 |
+| `usageProbeAtHour` | — | 本地时钟小时 `0`–`23`，在固定时间每天探测一次。设置后覆盖 `usageProbeIntervalHours`。 |
+| `usageProbeStartupDelayMs` | `20000` | 启动探测的延迟。固定时间点只在 dsh 恰好运行时才触发，所以启动本身也是一个触发点。 |
+| `usageProbeCodexModel` | `gpt-5.6-terra` | Codex 探测使用的模型，仅作为拿响应头的载体。 |
+| `usageProbeAnthropicModel` | `claude-haiku-4-5-20251001` | Anthropic 探测使用的模型，仅作为拿响应头的载体。 |
 
 ## 订阅用量徽标
 
-两家 provider 都在响应头里返回额度状态，插件顺带读取即可 —— 不轮询、不额外调接口。输入框工具条上
-（上下文圆环旁边）会出现一个徽标，点开看明细。
+两家 provider 都在响应头里返回额度状态，所以真实请求顺带就能读到。但你从没调用过的那条路由无从上报 ——
+因此插件还会**定时刷新**：每个 provider 发一个刻意做到最小的请求（Codex 16 个输入 token、Anthropic 9 个），
+不带 prompt、skill、工具与历史，也不落存储。输入框工具条上（上下文圆环旁边）会出现一个徽标，点开看明细。
 
 | Provider | 读取的响应头 | 展示内容 |
 | --- | --- | --- |
 | `openai-codex` | `x-codex-primary-*`、`x-codex-secondary-*`、`x-codex-plan-type`、`x-codex-credits-balance` | 套餐、各窗口已用百分比、重置倒计时、点数余额 |
 | `anthropic` | `anthropic-ratelimit-unified-{5h,7d}-{utilization,reset,status}` | 5 小时与 7 天窗口的已用百分比、重置倒计时 |
 
-低于 60% 显示绿色，低于 85% 琥珀色，更高显示红色。数值来自**最近一次真实请求**，所以刚启动时会显示
-「暂无数据」，发一条消息即可。浏览器端每 15 秒轮询 `GET /llm-local-token/usage`，该路由只读内存快照。
+低于 60% 显示绿色，低于 85% 琥珀色，更高显示红色。超过一分钟的数值会标注**读取时间** —— 5 小时窗口每天
+重置约五次，一个看起来实时的过期数字比没有数字更糟。浏览器端每 15 秒轮询 `GET /llm-local-token/usage`，
+该路由只读内存快照。
 
 徽标**只显示当前选中模型所属 provider** 的用量：选 Codex 就是 Codex 的窗口，切到 Claude 就换成
 Claude 的，不会把两家的数字混在一起。选中的模型由别的 adapter 提供（普通 API key、其他插件）时徽标

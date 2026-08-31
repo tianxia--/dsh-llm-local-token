@@ -78,20 +78,29 @@ All keys are optional; the defaults match a stock CLI install.
 | `claudeKeychainService` | `Claude Code-credentials` | macOS Keychain service holding the Claude OAuth payload |
 | `requireClaude` | `false` | Fail activation when no Claude credential is found, instead of skipping the route |
 | `codexTransport` | `"sse"` | Streaming transport for the Codex route: `sse` / `websocket` / `websocket-cached` / `auto`. **The quota badge depends on `sse`**: pi-ai's default `auto` streams over WebSocket, and the `x-codex-*` quota headers exist only on the SSE response, so the badge stays empty under WS. Set `auto` to prefer WebSocket and accept no Codex quota data. |
+| `usageProbe` | `true` | Refresh quota on a schedule with one bare minimal request per provider. Set `false` to keep the panel purely passive. |
+| `usageProbeIntervalHours` | `4` | Hours between probes. Tracks the 5-hour window, which resets about five times a day; `24` is once per day. |
+| `usageProbeAtHour` | — | Local hour `0`–`23` for a once-daily probe at a fixed clock time. Overrides `usageProbeIntervalHours`. |
+| `usageProbeStartupDelayMs` | `20000` | Delay before the probe that runs at boot. A clock schedule only fires while dsh happens to be running, so boot is its own trigger. |
+| `usageProbeCodexModel` | `gpt-5.6-terra` | Model the Codex probe names; only a vehicle for the headers. |
+| `usageProbeAnthropicModel` | `claude-haiku-4-5-20251001` | Model the Anthropic probe names; only a vehicle for the headers. |
 
 ## Subscription usage badge
 
-Both providers return their quota state in response headers, so the plugin reads it for free —
-no polling, no extra endpoint hits. A badge appears in the composer bar next to the context
-ring; click it for the breakdown.
+Both providers state their quota in response headers, so reading it off a real request costs
+nothing. A route you never call has nothing to report, though — so the plugin also refreshes on a
+schedule, with one deliberately tiny request per provider (16 input tokens for Codex, 9 for
+Anthropic) that carries no prompt, skills, tools or history and is never stored. A badge appears in
+the composer bar next to the context ring; click it for the breakdown.
 
 | Provider | Headers read | Shown |
 | --- | --- | --- |
 | `openai-codex` | `x-codex-primary-*`, `x-codex-secondary-*`, `x-codex-plan-type`, `x-codex-credits-balance` | plan, used % per window, reset countdown, credit balance |
 | `anthropic` | `anthropic-ratelimit-unified-{5h,7d}-{utilization,reset,status}` | used % for the 5-hour and 7-day windows, reset countdown |
 
-The badge is green under 60%, amber under 85%, red above. Usage is whatever the **last real
-request** reported, so a freshly started host shows "no data yet" until you send one message.
+The badge is green under 60%, amber under 85%, red above. Any reading older than a minute carries
+its age, because a 5-hour window resets about five times a day and a stale number that looks live
+is worse than none.
 The browser half polls `GET /llm-local-token/usage` every 15s; that route only reads the
 in-memory snapshot.
 
