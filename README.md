@@ -13,10 +13,14 @@ usable model routes inside DSH.
 Both routes appear in the model picker as soon as the plugin loads. A route whose credential is
 missing is skipped instead of failing the boot.
 
+The usage badge additionally reports a **GLM Coding Plan** subscription, which DSH already serves
+through pi-ai's own `zai-coding-cn` route — the plugin adds the quota, not a second route, so the
+model picker gains no duplicate. See [Subscription usage badge](#subscription-usage-badge).
+
 <table>
 <tr>
 <td align="center" width="50%"><sub>Both subscriptions as routes in the model picker</sub><br><img src="https://raw.githubusercontent.com/tianxia--/dsh-llm-local-token/main/docs/model-routes.png" alt="The DSH model picker listing OpenAI Codex (local token) and Claude (local token) groups" width="330"></td>
-<td align="center" width="50%"><sub>Subscription usage, read from provider rate-limit headers</sub><br><img src="https://raw.githubusercontent.com/tianxia--/dsh-llm-local-token/main/docs/subscription-usage.png" alt="Subscription usage popover showing Claude and OpenAI Codex quota windows" width="400"></td>
+<td align="center" width="50%"><sub>Subscription usage for every subscription the plugin can see</sub><br><img src="https://raw.githubusercontent.com/tianxia--/dsh-llm-local-token/main/docs/subscription-usage.png" alt="Subscription usage popover showing GLM Coding Plan, OpenAI Codex and Claude quota windows" width="400"></td>
 </tr>
 </table>
 
@@ -84,19 +88,42 @@ All keys are optional; the defaults match a stock CLI install.
 | `usageProbeStartupDelayMs` | `20000` | Delay before the probe that runs at boot. A clock schedule only fires while dsh happens to be running, so boot is its own trigger. |
 | `usageProbeCodexModel` | `gpt-5.6-terra` | Model the Codex probe names; only a vehicle for the headers. |
 | `usageProbeAnthropicModel` | `claude-haiku-4-5-20251001` | Model the Anthropic probe names; only a vehicle for the headers. |
+| `glmQuota` | `true` | Report GLM Coding Plan quota. No route is registered either way — DSH already serves GLM. |
+| `glmApiKey` | — | GLM token, overriding every discovered source. |
+| `glmApiKeyEnv` | `ZAI_CODING_CN_API_KEY` | Environment variable and `$DSH_HOME/.credentials.yaml` ref consulted for the GLM token. |
+| `glmBaseDomain` | `https://open.bigmodel.cn` | Monitor host. `https://api.z.ai` is the international front; both answer the same body for the same account. |
 
 ## Subscription usage badge
 
-Both providers state their quota in response headers, so reading it off a real request costs
+Codex and Claude state their quota in response headers, so reading it off a real request costs
 nothing. A route you never call has nothing to report, though — so the plugin also refreshes on a
 schedule, with one deliberately tiny request per provider (16 input tokens for Codex, 9 for
 Anthropic) that carries no prompt, skills, tools or history and is never stored. A badge appears in
 the composer bar next to the context ring; click it for the breakdown.
 
-| Provider | Headers read | Shown |
+| Provider | Source | Shown |
 | --- | --- | --- |
 | `openai-codex` | `x-codex-primary-*`, `x-codex-secondary-*`, `x-codex-plan-type`, `x-codex-credits-balance` | plan, used % per window, reset countdown, credit balance |
 | `anthropic` | `anthropic-ratelimit-unified-{5h,7d}-{utilization,reset,status}` | used % for the 5-hour and 7-day windows, reset countdown |
+| `zai-coding-cn` | `GET /api/monitor/usage/quota/limit` | plan level, used % for the 5-hour and weekly token windows, and the MCP tool-call quota |
+
+GLM is the odd one out and deliberately so. DSH already serves it through pi-ai's built-in
+`zai-coding-cn` route, so this plugin contributes the quota half only — registering a route would
+put a duplicate GLM in the model picker. Its numbers come from the subscription's own monitor
+endpoint rather than response headers, so there is no probe request to pay for. modlens re-exposes
+every pi-ai route under a `modlens-` prefix as a separate picker entry, and the badge treats
+`modlens-zai-coding-cn` as the same subscription.
+
+GLM's credential is resolved in the order that keeps the number honest — the badge has to report
+the subscription the calls are actually billed to:
+
+1. `glmApiKey` in this plugin's config
+2. the `ZAI_CODING_CN_API_KEY` environment variable
+3. the same-named ref in `$DSH_HOME/.credentials.yaml` — what DSH itself calls with
+4. `~/.zcode/v2/credentials.json` → `oauth:bigmodel:access_token`, for a local `zcode` sign-in
+
+With none of those present the GLM row is skipped, exactly like a missing Codex or Claude
+credential. Set `glmQuota: false` to switch it off outright.
 
 The badge is green under 60%, amber under 85%, red above. Any reading older than a minute carries
 its age, because a 5-hour window resets about five times a day and a stale number that looks live

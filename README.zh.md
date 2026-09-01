@@ -11,10 +11,14 @@ Codex CLI 或 Claude Code，这些订阅就会变成 DSH 里可选的模型路�
 
 插件加载后模型直接出现在模型选择器里。缺少凭据的路由会被跳过，不会导致启动失败。
 
+用量徽标另外还会报告 **GLM Coding Plan** 的订阅额度。GLM 的调用 DSH 已经通过 pi-ai 自带的
+`zai-coding-cn` 路由提供了，所以本插件只补上额度那一半，不会再注册一条路由——模型选择器里
+不会多出一个重复的 GLM。详见[订阅用量徽标](#订阅用量徽标)。
+
 <table>
 <tr>
 <td align="center" width="50%"><sub>两份订阅都成了模型选择器里的路由</sub><br><img src="https://raw.githubusercontent.com/tianxia--/dsh-llm-local-token/main/docs/model-routes.png" alt="DSH 模型选择器中的 OpenAI Codex (local token) 与 Claude (local token) 分组" width="330"></td>
-<td align="center" width="50%"><sub>订阅用量，来自 provider 的 rate-limit 响应头</sub><br><img src="https://raw.githubusercontent.com/tianxia--/dsh-llm-local-token/main/docs/subscription-usage.png" alt="订阅用量弹层，显示 Claude 与 OpenAI Codex 的配额窗口" width="400"></td>
+<td align="center" width="50%"><sub>订阅用量：插件能看到的每一份订阅</sub><br><img src="https://raw.githubusercontent.com/tianxia--/dsh-llm-local-token/main/docs/subscription-usage.png" alt="订阅用量弹层，显示 GLM Coding Plan、OpenAI Codex 与 Claude 的配额窗口" width="400"></td>
 </tr>
 </table>
 
@@ -79,17 +83,36 @@ agent-default-model:
 | `usageProbeStartupDelayMs` | `20000` | 启动探测的延迟。固定时间点只在 dsh 恰好运行时才触发，所以启动本身也是一个触发点。 |
 | `usageProbeCodexModel` | `gpt-5.6-terra` | Codex 探测使用的模型，仅作为拿响应头的载体。 |
 | `usageProbeAnthropicModel` | `claude-haiku-4-5-20251001` | Anthropic 探测使用的模型，仅作为拿响应头的载体。 |
+| `glmQuota` | `true` | 是否报告 GLM Coding Plan 额度。无论开关，都不会注册路由 —— DSH 已经自带 GLM 路由。 |
+| `glmApiKey` | — | 直接指定 GLM token，优先级高于所有自动发现的来源。 |
+| `glmApiKeyEnv` | `ZAI_CODING_CN_API_KEY` | 查找 GLM token 时使用的环境变量名，同时也是 `$DSH_HOME/.credentials.yaml` 里的 ref 名。 |
+| `glmBaseDomain` | `https://open.bigmodel.cn` | 额度接口所在域名。国际站是 `https://api.z.ai`；同一账号下两个域名返回的内容完全一致。 |
 
 ## 订阅用量徽标
 
-两家 provider 都在响应头里返回额度状态，所以真实请求顺带就能读到。但你从没调用过的那条路由无从上报 ——
+Codex 与 Claude 都在响应头里返回额度状态，所以真实请求顺带就能读到。但你从没调用过的那条路由无从上报 ——
 因此插件还会**定时刷新**：每个 provider 发一个刻意做到最小的请求（Codex 16 个输入 token、Anthropic 9 个），
 不带 prompt、skill、工具与历史，也不落存储。输入框工具条上（上下文圆环旁边）会出现一个徽标，点开看明细。
 
-| Provider | 读取的响应头 | 展示内容 |
+| Provider | 数据来源 | 展示内容 |
 | --- | --- | --- |
 | `openai-codex` | `x-codex-primary-*`、`x-codex-secondary-*`、`x-codex-plan-type`、`x-codex-credits-balance` | 套餐、各窗口已用百分比、重置倒计时、点数余额 |
 | `anthropic` | `anthropic-ratelimit-unified-{5h,7d}-{utilization,reset,status}` | 5 小时与 7 天窗口的已用百分比、重置倒计时 |
+| `zai-coding-cn` | `GET /api/monitor/usage/quota/limit` | 套餐等级、5 小时与每周 token 窗口的已用百分比、MCP 工具调用配额 |
+
+GLM 是个例外，而且是刻意为之。DSH 已经通过 pi-ai 内置的 `zai-coding-cn` 路由提供 GLM 调用，
+所以本插件只补额度那一半 —— 再注册一条路由只会让模型选择器里多出一个重复的 GLM。它的数字来自订阅
+自己的额度接口而不是响应头，因此不需要付出任何探测请求的代价。另外 modlens 会把每条 pi-ai 路由都加上
+`modlens-` 前缀再暴露成一个独立条目，徽标会把 `modlens-zai-coding-cn` 视作同一份订阅。
+
+GLM 的凭据按下面的顺序解析，这个顺序保证数字是诚实的 —— 徽标必须报告**真正在扣费的那份订阅**：
+
+1. 本插件配置里的 `glmApiKey`
+2. 环境变量 `ZAI_CODING_CN_API_KEY`
+3. `$DSH_HOME/.credentials.yaml` 里的同名 ref —— DSH 自己调用时用的就是它
+4. `~/.zcode/v2/credentials.json` 的 `oauth:bigmodel:access_token`，对应本地 `zcode` 登录
+
+一个都找不到就跳过 GLM 那一行，和缺少 Codex / Claude 凭据时的处理一致。设 `glmQuota: false` 可彻底关闭。
 
 低于 60% 显示绿色，低于 85% 琥珀色，更高显示红色。超过一分钟的数值会标注**读取时间** —— 5 小时窗口每天
 重置约五次，一个看起来实时的过期数字比没有数字更糟。浏览器端每 15 秒轮询 `GET /llm-local-token/usage`，
