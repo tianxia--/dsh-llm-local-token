@@ -1,7 +1,7 @@
 {
   "name": "dsh-llm-local-token",
-  "version": "1.4.1",
-  "description": "DeepSeek Harness plugin: serve LLM calls with the OAuth tokens your local Codex CLI and Claude Code already hold, instead of a separately configured API key.",
+  "version": "1.5.0",
+  "description": "DeepSeek Harness plugin: serve LLM calls with the OAuth tokens your local Codex CLI and Claude Code already hold, instead of a separately configured API key — plus a composer badge showing subscription usage for those routes and for GLM Coding Plan.",
   "keywords": [
     "deepseek-harness",
     "dsh",
@@ -10,7 +10,10 @@
     "llm",
     "codex",
     "claude",
-    "oauth"
+    "oauth",
+    "glm",
+    "zai",
+    "quota"
   ],
   "license": "MIT",
   "type": "module",
