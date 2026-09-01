@@ -23,6 +23,7 @@
   },
   "files": [
     "lib/",
+    "!lib/*.bak*",
     "cordis.patch.yml",
     "README.md",
     "README.zh.md",

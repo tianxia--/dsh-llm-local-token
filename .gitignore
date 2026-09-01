@@ -6,3 +6,9 @@ node_modules/
 # plugin (npm ships only what package.json "files" lists, so these never
 # published — this just keeps them out of git too).
 .dsh_better_edit/
+
+# Hand-made backups beside the sources they copy. This rule only keeps them out
+# of git: "files" in package.json lists lib/ as a whole directory and wins over
+# the ignore files, so the tarball is excluded separately by a "!lib/*.bak*"
+# entry there. Both are needed.
+lib/*.bak*
