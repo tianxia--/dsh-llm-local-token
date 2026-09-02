@@ -135,7 +135,8 @@ The badge shows **only the provider serving the currently selected model**: pick
 Codex's windows, switch to Claude and it swaps — the two are never mixed into one number. When the
 selected model belongs to another adapter (a plain API key, another plugin) the badge hides itself,
 because that quota is not this plugin's to report. The popover still lists every route, with the
-active one first and marked "current" and the rest dimmed. The selection comes from
+active one first, marked "current" and expanded; the rest are collapsed to a header carrying their
+first two windows, and open on click. Switching model re-applies that default. The selection comes from
 `ctx.modelDirectories`; a composition without that service (non-Web) falls back to the previous
 union-of-all-routes view.
 
