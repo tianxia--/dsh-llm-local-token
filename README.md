@@ -87,6 +87,7 @@ All keys are optional; the defaults match a stock CLI install.
 | `usageProbeAtHour` | — | Local hour `0`–`23` for a once-daily probe at a fixed clock time. Overrides `usageProbeIntervalHours`. |
 | `usageProbeStartupDelayMs` | `20000` | Delay before the probe that runs at boot. A clock schedule only fires while dsh happens to be running, so boot is its own trigger. |
 | `usageProbeCodexModel` | `gpt-5.6-terra` | Model the Codex probe names; only a vehicle for the headers. |
+| `usageHistoryDays` | `7` | How many days of snapshots to keep per provider and serve to the panel's trend strip. Snapshots live in `~/.dsh/usage-history/<provider>.jsonl`. |
 | `usageProbeAnthropicModel` | `claude-haiku-4-5-20251001` | Model the Anthropic probe names; only a vehicle for the headers. |
 | `glmQuota` | `true` | Report GLM Coding Plan quota. No route is registered either way — DSH already serves GLM. |
 | `glmApiKey` | — | GLM token, overriding every discovered source. |

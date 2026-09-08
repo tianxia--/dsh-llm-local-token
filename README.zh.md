@@ -83,6 +83,7 @@ agent-default-model:
 | `usageProbeStartupDelayMs` | `20000` | 启动探测的延迟。固定时间点只在 dsh 恰好运行时才触发，所以启动本身也是一个触发点。 |
 | `usageProbeCodexModel` | `gpt-5.6-terra` | Codex 探测使用的模型，仅作为拿响应头的载体。 |
 | `usageProbeAnthropicModel` | `claude-haiku-4-5-20251001` | Anthropic 探测使用的模型，仅作为拿响应头的载体。 |
+| `usageHistoryDays` | `7` | 每个 provider 保留多少天的快照，供面板趋势条读取。快照存于 `~/.dsh/usage-history/<provider>.jsonl`。 |
 | `glmQuota` | `true` | 是否报告 GLM Coding Plan 额度。无论开关，都不会注册路由 —— DSH 已经自带 GLM 路由。 |
 | `glmApiKey` | — | 直接指定 GLM token，优先级高于所有自动发现的来源。 |
 | `glmApiKeyEnv` | `ZAI_CODING_CN_API_KEY` | 查找 GLM token 时使用的环境变量名，同时也是 `$DSH_HOME/.credentials.yaml` 里的 ref 名。 |
