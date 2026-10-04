@@ -23,5 +23,7 @@ if (!providers.includes("openai-codex")) throw new Error("codex route missing");
 const info = adapter.providerInfo("openai-codex");
 const policy = adapter.providerRetryPolicy("openai-codex");
 if (!policy || !policy.mode) throw new Error("retryPolicy not resolved: " + JSON.stringify(policy));
+const models = await adapter.listModels("anthropic").catch(() => []);
+if (!models.some((m) => m.id === "claude-sonnet-5-5")) throw new Error("claude-sonnet-5-5 missing from anthropic models: " + models.map((m) => m.id).join(","));
 console.log("PASS: apply() registered", providers.join(","), "| retry mode:", policy.mode, "| inject:", inject.join(","));
 process.exit(0);
