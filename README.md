@@ -93,6 +93,7 @@ All keys are optional; the defaults match a stock CLI install.
 | `glmApiKey` | — | GLM token, overriding every discovered source. |
 | `glmApiKeyEnv` | `ZAI_CODING_CN_API_KEY` | Environment variable and `$DSH_HOME/.credentials.yaml` ref consulted for the GLM token. |
 | `glmBaseDomain` | `https://open.bigmodel.cn` | Monitor host. `https://api.z.ai` is the international front; both answer the same body for the same account. |
+| `requestImageMaxEdge` | `1568` | Long-edge cap, in pixels, for every image sent upstream. Images above it are scaled down proportionally (never cropped, never enlarged); smaller images are untouched. Values above `2000` are capped, because Anthropic rejects a request carrying more than 20 images when any edge exceeds 2000px. |
 
 ## Subscription usage badge
 

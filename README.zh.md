@@ -88,6 +88,7 @@ agent-default-model:
 | `glmApiKey` | — | 直接指定 GLM token，优先级高于所有自动发现的来源。 |
 | `glmApiKeyEnv` | `ZAI_CODING_CN_API_KEY` | 查找 GLM token 时使用的环境变量名，同时也是 `$DSH_HOME/.credentials.yaml` 里的 ref 名。 |
 | `glmBaseDomain` | `https://open.bigmodel.cn` | 额度接口所在域名。国际站是 `https://api.z.ai`；同一账号下两个域名返回的内容完全一致。 |
+| `requestImageMaxEdge` | `1568` | 发往模型的图片长边上限（像素）。超过的图片按原比例等比缩小（不裁剪、不放大），本来就小的图片原样通过。填写超过 `2000` 的值会被截到 `2000`——单次请求图片超过 20 张时，Anthropic 会拒绝任何一边超过 2000px 的图片。 |
 
 ## 订阅用量徽标
 
