@@ -72,19 +72,42 @@ agent-default-model:
 ```
 ## Signing in from the Models page
 
-Open **Settings → Models**. The `openai-codex` and `anthropic` cards grow a **local subscription**
-block:
+Open **Settings → Models**: below the provider list and **above “Add model provider”** there is a
+**local subscription** block with one row per route.
 
-- when signed in it shows the account, the token expiry and where the credential lives
-  (`~/.codex/auth.json` or the Keychain);
-- **Sign in** runs the CLI's own login on this machine (`codex login` / `claude setup-token`) and
-  offers the browser authorization page as a button inside the card; the card refreshes itself when
-  the credential lands;
-- if the route was not registered because its credential was missing (the usual Claude state), a
+> Why it needs its own block: both routes sit in pi-ai's provider directory as declared-but-never-
+> configured rows, and the Models page only draws rows it judges configured. The plugin therefore
+> mounts this block on the section's unconditionally-rendered footer seat and pushes the add
+> control after it in visual order.
+
+Each row shows one of three states:
+
+| State | What you see |
+| --- | --- |
+| Authorized | `Authorized` plus the account, token expiry and where the credential lives (`~/.codex/auth.json` or the Keychain). **No sign-in button** |
+| Not authorized | `Not authorized`, the reason (e.g. `credential file not found`) and a **Sign in** button |
+| Signing in | **Open sign-in page** and **Cancel**, plus a code field when the flow asks for one |
+
+**Sign in** is the same act as running the CLI's own login in a terminal:
+
+```bash
+codex login          # OpenAI Codex route
+claude setup-token   # Claude route
+```
+
+The plugin runs that command, turns the authorization page it prints into a button, and flips the
+row to authorized once the credential store **actually changes** — an older token that still works
+is not evidence of a successful sign-in.
+
+More detail:
+
+- Claude's flow asks you to paste an authorization code back; the card has a field for it. An
+  unfinished login gives up after five minutes.
+- If a route was not registered because its credential was missing (the usual Claude state), a
   successful sign-in registers it immediately — no DSH restart.
-
-This is exactly the same act as running `codex login` in a terminal: the CLI writes the credential,
-the plugin only reads it.
+- To switch accounts or refresh a token later, run the terminal command again; the card picks it up.
+  The plugin never reopens a login on its own.
+- The CLI still owns the credential. The plugin only reads it.
 
 ## Configuration
 
@@ -193,7 +216,30 @@ whose `resolveProviderAuth` changed — open an issue with your `@earendil-works
 ### The model list shows no Codex/Claude entries
 
 Check the boot log for `llm-local-token: registered …`. If it names only `openai-codex`, no
-Claude credential was found (expected when Claude Code was never used on this machine).
+Claude credential was found (expected when Claude Code was never used on this machine). The
+**Settings → Models** sign-in block reports the same state.
+
+### The “local subscription” block is missing from the Models page
+
+Hard-refresh first (`Cmd+Shift+R`): the client bundle's revision changed, and a plain reload may
+still run the old one. If it is still missing, check two things:
+
+```bash
+# 1. the host-side sign-in route exists
+curl -s localhost:3080/llm-local-token/auth   # use your dsh web port
+
+# 2. in the browser console: the slot keys the plugin published
+window.__DSH_LLM_LOCAL_TOKEN__
+```
+
+A 404 on the first means the plugin is not loaded, or is older than 1.8.0; an empty second value
+means the page bootstrap never reached the plugin.
+
+### A finished sign-in still reads “Not authorized”
+
+The card polls only while a login session exists, and it needs to see the credential change. If you
+completed the sign-in in a **terminal**, switching back to the page re-reads on window focus; in the
+rare case that does not fire, reload the page.
 
 ## Caveats
 
