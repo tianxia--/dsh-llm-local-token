@@ -70,6 +70,21 @@ agent-default-model:
   model: gpt-5.6-terra
   reasoningEffort: medium
 ```
+## Signing in from the Models page
+
+Open **Settings → Models**. The `openai-codex` and `anthropic` cards grow a **local subscription**
+block:
+
+- when signed in it shows the account, the token expiry and where the credential lives
+  (`~/.codex/auth.json` or the Keychain);
+- **Sign in** runs the CLI's own login on this machine (`codex login` / `claude setup-token`) and
+  offers the browser authorization page as a button inside the card; the card refreshes itself when
+  the credential lands;
+- if the route was not registered because its credential was missing (the usual Claude state), a
+  successful sign-in registers it immediately — no DSH restart.
+
+This is exactly the same act as running `codex login` in a terminal: the CLI writes the credential,
+the plugin only reads it.
 
 ## Configuration
 

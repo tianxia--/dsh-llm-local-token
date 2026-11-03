@@ -65,6 +65,17 @@ agent-default-model:
   model: gpt-5.6-terra
   reasoningEffort: medium
 ```
+## 在 Models 页授权
+
+打开「设置 → Models」，`openai-codex` 与 `anthropic` 两张卡片里会多出一块**本地订阅授权**区域：
+
+- 已授权时显示账户、token 有效期与凭据来源（`~/.codex/auth.json` 或 Keychain）；
+- 点「授权登录」直接在本机起 CLI 自己的登录流程（`codex login` / `claude setup-token`），
+  浏览器授权页会以按钮形式出现在卡片里，完成后卡片自动刷新；
+- 授权成功后如果这条路由原本因为缺凭据没有注册（Claude 常见的状态），插件会立即补注册，
+  不需要重启 DSH。
+
+这些操作与你在终端里跑一次 `codex login` 完全等价：凭据仍由 CLI 写入，插件只读不写。
 
 ## 配置项
 
